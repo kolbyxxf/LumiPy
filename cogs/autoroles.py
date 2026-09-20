@@ -1,103 +1,75 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-
-from utils import storage
-from utils.permissions import require_permission
-
+from utils.storage import load_data, save_data
 
 class AutoRoles(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.autoroles: dict = storage.load_autorole()
+        self.data_file = "autorole.json"
 
-    @app_commands.command(name="setautorole", description="Add a role to automatic roles")
-    async def setautorole(self, interaction: discord.Interaction, role_id: str):
-        if not await require_permission(interaction, "manage_guild"):
-            return
-        if not role_id.isdigit():
-            await interaction.response.send_message(
-                "The role ID must be a number.", ephemeral=True
-            )
-            return
-        role = interaction.guild.get_role(int(role_id))
-        if role is None:
-            await interaction.response.send_message(
-                "I can't find that role.", ephemeral=True
-            )
-            return
+    @app_commands.command(name="setautorole", description="Set roles to be automatically assigned to new members")
+    @app_commands.default_permissions(administrator=True)
+    async def set_autorole(self, interaction: discord.Interaction, role: discord.Role):
+        data = load_data(self.data_file)
         guild_id = str(interaction.guild.id)
-        if guild_id not in self.autoroles:
-            self.autoroles[guild_id] = []
-        if role.id in self.autoroles[guild_id]:
-            await interaction.response.send_message(
-                "That role is already an auto-role.", ephemeral=True
-            )
-            return
-        self.autoroles[guild_id].append(role.id)
-        storage.save_autorole(self.autoroles)
-        await interaction.response.send_message(
-            f"{role.mention} added as an auto-role.", ephemeral=True
-        )
-
-    @app_commands.command(name="removeautorole", description="Remove a role from automatic roles")
-    async def removeautorole(self, interaction: discord.Interaction, role_id: str):
-        if not await require_permission(interaction, "manage_guild"):
-            return
-        if not role_id.isdigit():
-            await interaction.response.send_message(
-                "The role ID must be a number.", ephemeral=True
-            )
-            return
-        guild_id = str(interaction.guild.id)
-        role_list = self.autoroles.get(guild_id, [])
-        role_id = int(role_id)
-        if role_id not in role_list:
-            await interaction.response.send_message(
-                "That role isn't an auto-role.", ephemeral=True
-            )
-            return
-        role_list.remove(role_id)
-        if role_list:
-            self.autoroles[guild_id] = role_list
+        
+        if guild_id not in data:
+            data[guild_id] = []
+            
+        if role.id not in data[guild_id]:
+            data[guild_id].append(role.id)
+            save_data(self.data_file, data)
+            await interaction.response.send_message(f"✅ Role **{role.name}** added to auto-roles.", ephemeral=True)
         else:
-            self.autoroles.pop(guild_id)
-        storage.save_autorole(self.autoroles)
-        role = interaction.guild.get_role(role_id)
-        role_name = role.mention if role else f"`{role_id}`"
-        await interaction.response.send_message(
-            f"{role_name} removed from auto-roles.", ephemeral=True
-        )
+            await interaction.response.send_message("⚠️ That role is already in the auto-role list.", ephemeral=True)
 
-    @app_commands.command(name="clearautoroles", description="Remove all automatic roles")
-    async def clearautoroles(self, interaction: discord.Interaction):
-        if not await require_permission(interaction, "manage_guild"):
-            return
+    @app_commands.command(name="removeautorole", description="Remove a role from auto-assignment")
+    @app_commands.default_permissions(administrator=True)
+    async def remove_autorole(self, interaction: discord.Interaction, role: discord.Role):
+        data = load_data(self.data_file)
         guild_id = str(interaction.guild.id)
-        if guild_id not in self.autoroles:
-            await interaction.response.send_message(
-                "There are no auto-roles configured.", ephemeral=True
-            )
+        
+        if guild_id in data and role.id in data[guild_id]:
+            data[guild_id].remove(role.id)
+            save_data(self.data_file, data)
+            await interaction.response.send_message(f"✅ Role **{role.name}** removed from auto-roles.", ephemeral=True)
+        else:
+            await interaction.response.send_message("❌ That role is not in the auto-role list.", ephemeral=True)
+
+    @app_commands.command(name="viewautoroles", description="View current auto-roles")
+    async def view_autoroles(self, interaction: discord.Interaction):
+        data = load_data(self.data_file)
+        guild_id = str(interaction.guild.id)
+        
+        if guild_id not in data or not data[guild_id]:
+            await interaction.response.send_message("No auto-roles configured.", ephemeral=True)
             return
-        self.autoroles.pop(guild_id)
-        storage.save_autorole(self.autoroles)
-        await interaction.response.send_message(
-            "All auto-roles have been removed.", ephemeral=True
-        )
+            
+        roles = []
+        for role_id in data[guild_id]:
+            role = interaction.guild.get_role(role_id)
+            if role:
+                roles.append(role.mention)
+            else:
+                data[guild_id].remove(role_id)
+                save_data(self.data_file, data)
+                
+        await interaction.response.send_message(f"Auto-roles: {' '.join(roles) if roles else 'None'}", ephemeral=True)
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
-        for role_id in self.autoroles.get(str(member.guild.id), []):
-            role = member.guild.get_role(int(role_id))
-            if role is None:
-                continue
-            if role >= member.guild.me.top_role:
-                continue
-            try:
-                await member.add_roles(role, reason="Automatic role")
-            except discord.Forbidden:
-                pass
-
+        data = load_data(self.data_file)
+        guild_id = str(member.guild.id)
+        
+        if guild_id in data:
+            for role_id in data[guild_id]:
+                role = member.guild.get_role(role_id)
+                if role:
+                    try:
+                        await member.add_roles(role, reason="AutoRole System")
+                    except discord.Forbidden:
+                        pass
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(AutoRoles(bot))

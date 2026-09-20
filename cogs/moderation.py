@@ -1,232 +1,165 @@
-import datetime
 import discord
 from discord import app_commands
 from discord.ext import commands
+from utils.storage import load_data, save_data
+from datetime import timedelta
 
-from utils import storage
-from utils.permissions import require_permission, reject_target
-
+SETTINGS_FILE = "settings.json"
 
 class Moderation(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.settings: dict = storage.load_settings()
 
-    async def mod_log(
-        self,
-        guild,
-        action,
-        moderator,
-        target,
-        reason="No reason",
-    ):
-        if guild is None:
+    async def mod_log(self, guild, action, moderator, target, reason="No reason"):
+        settings = load_data(SETTINGS_FILE)
+        channel_id = settings.get(str(guild.id))
+        if not channel_id:
             return
-        channel_id = self.settings.get(str(guild.id))
-        if channel_id is None:
-            return
+        
         channel = guild.get_channel(int(channel_id))
-        if channel is None:
+        if not channel:
             return
-        embed = discord.Embed(
-            title=action,
-            color=discord.Color.orange(),
-            timestamp=discord.utils.utcnow(),
-        )
+
+        embed = discord.Embed(title=action, color=discord.Color.orange(), timestamp=discord.utils.utcnow())
         embed.add_field(name="Moderator", value=moderator.mention)
         embed.add_field(name="Target", value=str(target))
         embed.add_field(name="Reason", value=reason, inline=False)
+        
         try:
             await channel.send(embed=embed)
         except discord.Forbidden:
             pass
 
+    async def member_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+        """Provides a list of members matching the current input."""
+        choices = []
+        for member in interaction.guild.members:
+            if current.lower() in member.name.lower() or \
+               (member.display_name and current.lower() in member.display_name.lower()) or \
+               current in str(member.id):
+                if len(choices) < 25:
+                    choices.append(app_commands.Choice(name=f"{member.display_name} ({member.name})", value=str(member.id)))
+        return choices
+
     @app_commands.command(name="kick", description="Kick a member")
-    async def kick(
-        self,
-        interaction: discord.Interaction,
-        member: discord.Member,
-        reason: str = "No reason",
-    ):
-        if not await require_permission(interaction, "kick_members"):
-            return
-        if await reject_target(interaction, member):
-            return
+    @app_commands.default_permissions(kick_members=True)
+    @app_commands.describe(member="The member to kick", reason="The reason for the kick")
+    @app_commands.autocomplete(member=member_autocomplete)
+    async def kick(self, interaction: discord.Interaction, member: str, reason: str = "No reason"):
         try:
-            await member.kick(reason=reason)
-        except discord.Forbidden:
-            await interaction.response.send_message(
-                "I can't kick them, my role is too low.", ephemeral=True
-            )
+            member_obj = interaction.guild.get_member(int(member))
+        except ValueError:
+            await interaction.response.send_message("❌ Invalid member ID.", ephemeral=True)
             return
-        await interaction.response.send_message(
-            f"Kicked {member.display_name}. Reason: {reason}"
-        )
-        await self.mod_log(interaction.guild, "Member Kicked", interaction.user, member, reason)
+
+        if not member_obj:
+            await interaction.response.send_message("❌ Member not found.", ephemeral=True)
+            return
+            
+        if member_obj == interaction.user:
+            await interaction.response.send_message("You cannot kick yourself.", ephemeral=True)
+            return
+        
+        try:
+            await member_obj.kick(reason=reason)
+            await interaction.response.send_message(f"Kicked {member_obj.display_name}. Reason: {reason}")
+            await self.mod_log(interaction.guild, "Member Kicked", interaction.user, member_obj, reason)
+        except discord.Forbidden:
+            await interaction.response.send_message("I don't have permission to kick this member.", ephemeral=True)
 
     @app_commands.command(name="ban", description="Ban a member")
-    async def ban(
-        self,
-        interaction: discord.Interaction,
-        member: discord.Member,
-        reason: str = "No reason",
-    ):
-        if not await require_permission(interaction, "ban_members"):
-            return
-        if await reject_target(interaction, member):
-            return
+    @app_commands.default_permissions(ban_members=True)
+    @app_commands.describe(member="The member to ban", reason="The reason for the ban")
+    @app_commands.autocomplete(member=member_autocomplete)
+    async def ban(self, interaction: discord.Interaction, member: str, reason: str = "No reason"):
         try:
-            await member.ban(reason=reason)
-        except discord.Forbidden:
-            await interaction.response.send_message(
-                "I can't ban them, my role is too low.", ephemeral=True
-            )
+            member_obj = interaction.guild.get_member(int(member))
+        except ValueError:
+            await interaction.response.send_message("❌ Invalid member ID.", ephemeral=True)
             return
-        await interaction.response.send_message(
-            f"Banned {member.display_name}. Reason: {reason}"
-        )
-        await self.mod_log(interaction.guild, "Member Banned", interaction.user, member, reason)
 
-    @app_commands.command(name="unban", description="Unban a user by their ID")
-    async def unban(self, interaction: discord.Interaction, user_id: str):
-        if not await require_permission(interaction, "ban_members"):
+        if not member_obj:
+            await interaction.response.send_message("❌ Member not found.", ephemeral=True)
             return
-        if not user_id.isdigit():
-            await interaction.response.send_message(
-                "That isn't a valid user ID.", ephemeral=True
-            )
+
+        if member_obj == interaction.user:
+            await interaction.response.send_message("You cannot ban yourself.", ephemeral=True)
             return
+
         try:
-            await interaction.guild.unban(discord.Object(id=int(user_id)))
-        except discord.NotFound:
-            await interaction.response.send_message(
-                "That user isn't banned.", ephemeral=True
-            )
-            return
+            await member_obj.ban(reason=reason)
+            await interaction.response.send_message(f"Banned {member_obj.display_name}. Reason: {reason}")
+            await self.mod_log(interaction.guild, "Member Banned", interaction.user, member_obj, reason)
         except discord.Forbidden:
-            await interaction.response.send_message(
-                "I can't unban, I'm missing the Ban Members permission.",
-                ephemeral=True,
-            )
-            return
-        await interaction.response.send_message(f"Unbanned <@{user_id}>.")
-        await self.mod_log(
-            interaction.guild, "Member Unbanned", interaction.user, f"<@{user_id}>"
-        )
+            await interaction.response.send_message("I don't have permission to ban this member.", ephemeral=True)
 
-    @app_commands.command(name="timeout", description="Mute a member for a while")
-    async def timeout(
-        self,
-        interaction: discord.Interaction,
-        member: discord.Member,
-        minutes: app_commands.Range[int, 1, 40320],
-        reason: str = "No reason",
-    ):
-        if not await require_permission(interaction, "moderate_members"):
-            return
-        if await reject_target(interaction, member):
-            return
+    @app_commands.command(name="timeout", description="Timeout a member")
+    @app_commands.default_permissions(moderate_members=True)
+    @app_commands.describe(member="The member to timeout", minutes="Duration in minutes", reason="The reason for the timeout")
+    @app_commands.autocomplete(member=member_autocomplete)
+    async def timeout(self, interaction: discord.Interaction, member: str, minutes: int = 60, reason: str = "No reason"):
         try:
-            await member.timeout(datetime.timedelta(minutes=minutes), reason=reason)
-        except discord.Forbidden:
-            await interaction.response.send_message(
-                "I can't timeout them, my role is too low.", ephemeral=True
-            )
+            member_obj = interaction.guild.get_member(int(member))
+        except ValueError:
+            await interaction.response.send_message("❌ Invalid member ID.", ephemeral=True)
             return
-        await interaction.response.send_message(
-            f"Timed out {member.display_name} for {minutes} minutes. Reason: {reason}"
-        )
-        await self.mod_log(interaction.guild, "Member Timed Out", interaction.user, member, reason)
 
-    @app_commands.command(name="untimeout", description="Remove a member's timeout")
-    async def untimeout(self, interaction: discord.Interaction, member: discord.Member):
-        if not await require_permission(interaction, "moderate_members"):
+        if not member_obj:
+            await interaction.response.send_message("❌ Member not found.", ephemeral=True)
             return
-        if await reject_target(interaction, member):
+
+        if member_obj.bot:
+            await interaction.response.send_message("Cannot timeout bots.", ephemeral=True)
             return
+
         try:
-            await member.timeout(None)
+            duration = discord.utils.utcnow() + timedelta(minutes=minutes)
+            await member_obj.timeout(duration, reason=reason)
+            await interaction.response.send_message(f"Timed out {member_obj.display_name} for {minutes} minutes.")
+            await self.mod_log(interaction.guild, "Member Timed Out", interaction.user, member_obj, reason)
         except discord.Forbidden:
-            await interaction.response.send_message(
-                "I can't do that, my role is too low.", ephemeral=True
-            )
-            return
-        await interaction.response.send_message(
-            f"Removed the timeout for {member.display_name}."
-        )
-        await self.mod_log(interaction.guild, "Timeout Removed", interaction.user, member)
+            await interaction.response.send_message("I don't have permission to timeout this member.", ephemeral=True)
 
-    @app_commands.command(name="purge", description="Delete recent messages")
-    async def purge(
-        self,
-        interaction: discord.Interaction,
-        amount: app_commands.Range[int, 1, 100],
-    ):
-        if not await require_permission(interaction, "manage_messages"):
+    @app_commands.command(name="untimeout", description="Remove timeout from a member")
+    @app_commands.default_permissions(moderate_members=True)
+    @app_commands.describe(member="The member to untimeout")
+    @app_commands.autocomplete(member=member_autocomplete)
+    async def untimeout(self, interaction: discord.Interaction, member: str):
+        try:
+            member_obj = interaction.guild.get_member(int(member))
+        except ValueError:
+            await interaction.response.send_message("❌ Invalid member ID.", ephemeral=True)
             return
+
+        if not member_obj:
+            await interaction.response.send_message("❌ Member not found.", ephemeral=True)
+            return
+
+        try:
+            await member_obj.timeout(None)
+            await interaction.response.send_message(f"Removed timeout from {member_obj.display_name}.")
+            await self.mod_log(interaction.guild, "Timeout Removed", interaction.user, member_obj)
+        except discord.Forbidden:
+            await interaction.response.send_message("I don't have permission to do that.", ephemeral=True)
+
+    @app_commands.command(name="purge", description="Delete messages")
+    @app_commands.default_permissions(manage_messages=True)
+    async def purge(self, interaction: discord.Interaction, amount: int):
+        if amount > 100:
+            await interaction.response.send_message("Cannot delete more than 100 messages at once.", ephemeral=True)
+            return
+        
         await interaction.response.defer(ephemeral=True)
         deleted = await interaction.channel.purge(limit=amount)
-        await interaction.followup.send(
-            f"Deleted {len(deleted)} messages.", ephemeral=True
-        )
+        await interaction.followup.send(f"Deleted {len(deleted)} messages.", ephemeral=True)
 
-    @app_commands.command(name="setlog", description="Set the mod log channel")
-    async def setlog(
-        self,
-        interaction: discord.Interaction,
-        channel_id: str,
-        server_id: str | None = None,
-    ):
-        if server_id is None:
-            if interaction.guild is None:
-                await interaction.response.send_message(
-                    "Enter a server ID when using this in DMs.", ephemeral=True
-                )
-                return
-            server_id = str(interaction.guild.id)
-
-        if not server_id.isdigit() or not channel_id.isdigit():
-            await interaction.response.send_message(
-                "The IDs must be numbers only.", ephemeral=True
-            )
-            return
-
-        guild = self.bot.get_guild(int(server_id))
-        if guild is None:
-            await interaction.response.send_message(
-                "I'm not in that server.", ephemeral=True
-            )
-            return
-
-        try:
-            member = await guild.fetch_member(interaction.user.id)
-        except discord.NotFound:
-            await interaction.response.send_message(
-                "You're not in that server.", ephemeral=True
-            )
-            return
-
-        if not member.guild_permissions.manage_guild:
-            await interaction.response.send_message(
-                "You need Manage Server permission in that server.", ephemeral=True
-            )
-            return
-
-        channel = guild.get_channel(int(channel_id))
-        if channel is None:
-            await interaction.response.send_message(
-                "I can't find that channel in that server.", ephemeral=True
-            )
-            return
-
-        self.settings[str(guild.id)] = channel.id
-        storage.save_settings(self.settings)
-
-        await interaction.response.send_message(
-            f"Mod log for **{guild.name}** set to {channel.mention}.",
-            ephemeral=True,
-        )
-
+    @app_commands.command(name="setlog", description="Set the moderation log channel")
+    @app_commands.default_permissions(manage_guild=True)
+    async def setlog(self, interaction: discord.Interaction, channel: discord.TextChannel):
+        settings = load_data(SETTINGS_FILE)
+        settings[str(interaction.guild.id)] = channel.id
+        save_data(SETTINGS_FILE, settings)
+        await interaction.response.send_message(f"Mod log set to {channel.mention}.", ephemeral=True)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Moderation(bot))
