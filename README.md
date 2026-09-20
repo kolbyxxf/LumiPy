@@ -1,154 +1,151 @@
-<div align="center"><img src="./assets/lumipyx.png" width="128" alt="LumiPyx Logo">✦ LumiPyx ✦
+LumiPyx
 
-A tiny Discord bot built with Python & curiosity. 💜
+A Discord bot built with Python and "discord.py", created as a personal learning project.
 
-<br><img src="https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white">
-<img src="https://img.shields.io/badge/discord.py-2.x-5865F2?style=for-the-badge&logo=discord&logoColor=white">
-<img src="https://img.shields.io/badge/Data-JSON-000000?style=for-the-badge&logo=json&logoColor=white"><br><br>
+LumiPyx focuses on moderation, server utilities, persistent configuration, and experimentation with Discord's application-command system.
 
-<img src="https://img.shields.io/badge/Status-Hobby%20Project-9B59B6?style=flat-square">
-<img src="https://img.shields.io/badge/Made%20with-Neovim-57A143?style=flat-square&logo=neovim&logoColor=white"></div>---
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=python,json,neovim" alt="Python, JSON, and Neovim">
+</p>Features
 
-🌙 About
+Category| Features
+Moderation| Kick, ban, timeout, untimeout, purge
+Server Utilities| Avatar lookup, AFK status
+Moderation Logs| Configurable moderation log channel
+Permissions| Discord permission and role hierarchy checks
+Persistence| JSON-based configuration and AFK storage
+Commands| Discord slash commands with "app_commands"
 
-LumiPyx is a personal Discord bot written in Python using ""discord.py"" (https://discordpy.readthedocs.io/).
+Tech Stack
 
-What started as a simple project for learning Discord bot development gradually turned into a collection of moderation, utility, and experimental features.
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=python,json,neovim" alt="Python, JSON, Neovim">
+</p>- Python for the application logic
+- discord.py for Discord API interaction
+- JSON for lightweight persistent storage
+- Neovim as the development environment
 
-«💭 Build → break → fix → learn → repeat.»
-
-LumiPyx is primarily a hobby and learning project.
-The codebase and features will continue to evolve as I learn more.
-
----
-
-✨ Features
-
-<div align="center">🧩 Command| 📖 Description
-"/avatar"| View a user's avatar
-"/afk"| Set an AFK status
-"/kick"| Kick a member
-"/ban"| Ban a member
-"/unban"| Unban a user
-"/timeout"| Timeout a member
-"/untimeout"| Remove a timeout
-"/purge"| Delete recent messages
-"/setlog"| Configure moderation logs
-
-</div>---
-
-🛠️ Built With
-
-<div align="center"><img src="https://skillicons.dev/icons?i=python,json,neovim" height="64" alt="Python, JSON and Neovim"><br><br>
-
-Technology| Purpose
-🐍 Python| Main programming language
-🤖 discord.py| Discord API wrapper
-📄 JSON| Persistent data storage
-💚 Neovim| Development environment
-
-</div>---
-
-📁 Project Structure
+Project Structure
 
 LumiPyx/
-│
-├── 🐍 bot.py
-├── 📄 settings.json
-├── 📄 afk.json
-│
-├── 🖼️ assets/
-│   └── lumipyx.png
-│
-└── 📖 README.md
+├── data/
+│   ├── afk.json
+│   └── settings.json
+├── main.py
+├── README.md
+└── LICENSE
 
----
-
-💾 Data Storage
+Data Storage
 
 LumiPyx currently uses JSON for persistent data.
 
-It's simple, lightweight, and fits the current scope of the project.
+This keeps the project simple while I learn more about data persistence and database design. SQLite or another database may be introduced later as the project grows.
 
-                    LumiPyx
-                       │
-              ┌────────┴────────┐
-              ▼                 ▼
-       Server Settings       AFK Data
-              │                 │
-              ▼                 ▼
-       settings.json       afk.json
+Discord
+   │
+   ▼
+LumiPyx
+   │
+   ├── Commands
+   ├── Moderation
+   └── Server Configuration
+          │
+          ▼
+        JSON
 
-A migration to SQLite may happen later if the project grows enough to benefit from a database.
+Commands
 
----
+Command| Description
+"/avatar"| Display a user's avatar
+"/afk"| Set an AFK status
+"/kick"| Kick a member
+"/ban"| Ban a member
+"/unban"| Unban a user by ID
+"/timeout"| Timeout a member
+"/untimeout"| Remove a member's timeout
+"/purge"| Delete recent messages
+"/setlog"| Configure the moderation log channel
 
-🚧 Roadmap
+Architecture
 
+The project uses reusable helper functions for common operations such as:
+
+- Permission validation
+- Target validation
+- JSON persistence
+- Moderation logging
+- Discord error handling
+
+This keeps individual commands relatively small and avoids repeating the same logic throughout the bot.
+
+Roadmap
+
+- [x] Slash-command system
 - [x] Moderation commands
-- [x] AFK system
-- [x] Moderation logs
-- [x] Server configuration
-- [ ] Automated tasks
-- [ ] Welcome system
-- [ ] Automatic roles
-- [ ] More AutoMod features
-- [ ] Music playback 🎧
-- [ ] YouTube integration
-- [ ] SQLite migration
+- [x] Permission checks
+- [x] Moderation logging
+- [x] JSON persistence
+- [ ] Automated welcome and goodbye messages
+- [ ] Auto-role system
+- [ ] Scheduled messages
+- [ ] Automatic cleanup
+- [ ] Additional server utilities
+- [ ] Advanced automation
+- [ ] Experimental music functionality
 
----
+Future Experiments
 
-🎧 Experimental Ideas
+Music playback is one of the features I may experiment with in the future.
 
-Music playback is one of the features I'd like to experiment with in the future.
+A possible architecture:
 
-A possible architecture could look something like this:
+User
+ │
+ ▼
+Discord Command
+ │
+ ▼
+Search / Metadata
+ │
+ ▼
+Audio Source
+ │
+ ▼
+Discord Voice Channel
 
-        YouTube
-           │
-           ▼
-   Search / Metadata
-           │
-           ▼
-      Audio Source
-           │
-           ▼
-    Discord Voice
-           │
-           ▼
-        🔊 🎵
+This is currently an experimental idea rather than an implemented feature.
 
-This is currently an experimental idea, not an implemented feature.
+Project Status
 
----
+LumiPyx is primarily a learning project.
 
-💜 Project Philosophy
+The codebase is being developed incrementally while I learn more about:
 
-LumiPyx isn't trying to be the biggest Discord bot.
+- Python
+- "discord.py"
+- Asynchronous programming
+- APIs
+- Data persistence
+- Software architecture
 
-It's a small project where I can experiment with things I want to learn.
+It is not currently intended to be a large-scale public Discord bot.
 
-Sometimes that means building something useful.
+Development
 
-Sometimes it means building something completely unnecessary because it sounds fun.
+The project is developed locally using Neovim.
 
-Both count. :3
+Features are added incrementally as I learn new concepts and experiment with different approaches.
 
----
+License
 
-📜 License
+The source code is publicly visible for reference and learning purposes.
 
-LumiPyx is a personal hobby project.
-
-The source code is publicly available for viewing, but no permission is granted to modify, redistribute, or commercially use the project without permission from the copyright holder.
+No permission is granted to modify, redistribute, or commercially use the source code without explicit permission from the copyright holder.
 
 See ""LICENSE"" (./LICENSE) for the full terms.
 
----
+Author
 
-<div align="center"><img src="./assets/lumipyx.png" width="64" alt="LumiPyx Logo">Made with 🐍 Python, 💚 Neovim & a questionable amount of curiosity.
+Icel
 
-<br>"learning" · "experimenting" · "building"
-
-</div>
+Built with Python, "discord.py", JSON, and Neovim.
