@@ -54,11 +54,11 @@ Roadmap
 - [x] Permission checks
 - [x] Moderation logging
 - [x] JSON persistence
-- [ ] Automated welcome and goodbye messages
-- [ ] Auto-role system
+- [x] Automated welcome and goodbye messages
+- [x] Auto-role system
 - [ ] Scheduled messages
-- [ ] Automatic cleanup
-- [ ] Additional server utilities
+- [x] Automatic cleanup
+- [x] Additional server utilities
 - [ ] Advanced automation
 - [ ] Experimental music functionality
 
