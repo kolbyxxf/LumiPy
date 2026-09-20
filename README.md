@@ -99,11 +99,7 @@ Features are added incrementally as new concepts are learned and different appro
 
 License
 
-The source code is publicly visible for reference and learning purposes.
-
-No permission is granted to modify, redistribute, or commercially use the source code without explicit permission from the copyright holder.
-
-See ""LICENSE"" (./LICENSE) for the full terms.
+GPL-3.0
 
 Author
 
