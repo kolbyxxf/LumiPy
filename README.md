@@ -99,6 +99,7 @@ Features are added incrementally as new concepts are learned and different appro
 
 License
 
+https://github.com/kolbyxxf/LumiPyx/blob/main/LICENSE
 GPL-3.0
 
 Author
