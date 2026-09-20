@@ -1,25 +1,24 @@
-<div align="center"><img src="./assets/lumipyx.png" width="120" alt="LumiPyx Logo">✦ LumiPyx ✦
+<div align="center"><img src="./assets/lumipyx.png" width="128" alt="LumiPyx Logo">✦ LumiPyx ✦
 
 A tiny Discord bot built with Python & curiosity. 💜
 
-<img src="https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white">
+<br><img src="https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white">
 <img src="https://img.shields.io/badge/discord.py-2.x-5865F2?style=for-the-badge&logo=discord&logoColor=white">
 <img src="https://img.shields.io/badge/Data-JSON-000000?style=for-the-badge&logo=json&logoColor=white"><br><br>
 
-""GitHub" (https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white)" (https://github.com/)
-""Made with Python" (https://img.shields.io/badge/Made%20with-Python-3776AB?style=flat-square&logo=python&logoColor=white)" (https://www.python.org/)
-
-</div>---
+<img src="https://img.shields.io/badge/Status-Hobby%20Project-9B59B6?style=flat-square">
+<img src="https://img.shields.io/badge/Made%20with-Neovim-57A143?style=flat-square&logo=neovim&logoColor=white"></div>---
 
 🌙 About
 
-LumiPyx is a personal Discord bot project written in Python using ""discord.py"" (https://discordpy.readthedocs.io/).
+LumiPyx is a personal Discord bot written in Python using ""discord.py"" (https://discordpy.readthedocs.io/).
 
-It started as a way to learn Discord bot development and gradually grew into a collection of moderation, utility, and experimental features.
+What started as a simple project for learning Discord bot development gradually turned into a collection of moderation, utility, and experimental features.
 
 «💭 Build → break → fix → learn → repeat.»
 
-This is primarily a hobby and learning project, so the architecture and features are expected to evolve over time.
+LumiPyx is primarily a hobby and learning project.
+The codebase and features will continue to evolve as I learn more.
 
 ---
 
@@ -40,7 +39,7 @@ This is primarily a hobby and learning project, so the architecture and features
 
 🛠️ Built With
 
-<div align="center"><img src="https://skillicons.dev/icons?i=python,json,neovim" height="64"><br><br>
+<div align="center"><img src="https://skillicons.dev/icons?i=python,json,neovim" height="64" alt="Python, JSON and Neovim"><br><br>
 
 Technology| Purpose
 🐍 Python| Main programming language
@@ -50,7 +49,7 @@ Technology| Purpose
 
 </div>---
 
-📁 Structure
+📁 Project Structure
 
 LumiPyx/
 │
@@ -65,19 +64,22 @@ LumiPyx/
 
 ---
 
-💾 Storage
+💾 Data Storage
 
-For now, LumiPyx uses JSON files for persistent data.
+LumiPyx currently uses JSON for persistent data.
 
-This keeps the project simple while I'm learning.
+It's simple, lightweight, and fits the current scope of the project.
 
-Server
-  │
-  ├── Settings ──────► settings.json
-  │
-  └── AFK data ──────► afk.json
+                    LumiPyx
+                       │
+              ┌────────┴────────┐
+              ▼                 ▼
+       Server Settings       AFK Data
+              │                 │
+              ▼                 ▼
+       settings.json       afk.json
 
-A move to SQLite may happen later if the project becomes large enough to need it.
+A migration to SQLite may happen later if the project grows enough to benefit from a database.
 
 ---
 
@@ -89,7 +91,7 @@ A move to SQLite may happen later if the project becomes large enough to need it
 - [x] Server configuration
 - [ ] Automated tasks
 - [ ] Welcome system
-- [ ] Auto roles
+- [ ] Automatic roles
 - [ ] More AutoMod features
 - [ ] Music playback 🎧
 - [ ] YouTube integration
@@ -99,25 +101,25 @@ A move to SQLite may happen later if the project becomes large enough to need it
 
 🎧 Experimental Ideas
 
-One of the things I'd like to experiment with is music playback.
+Music playback is one of the features I'd like to experiment with in the future.
 
-Potential architecture:
+A possible architecture could look something like this:
 
-YouTube
-   │
-   ▼
-Search / Metadata
-   │
-   ▼
-Audio source
-   │
-   ▼
-Discord Voice
-   │
-   ▼
-🔊 🎵
+        YouTube
+           │
+           ▼
+   Search / Metadata
+           │
+           ▼
+      Audio Source
+           │
+           ▼
+    Discord Voice
+           │
+           ▼
+        🔊 🎵
 
-This is currently just an experiment idea, not a finished feature.
+This is currently an experimental idea, not an implemented feature.
 
 ---
 
@@ -125,17 +127,27 @@ This is currently just an experiment idea, not a finished feature.
 
 LumiPyx isn't trying to be the biggest Discord bot.
 
-It's a place to experiment with things I want to learn.
+It's a small project where I can experiment with things I want to learn.
 
-Sometimes that means writing something useful.
+Sometimes that means building something useful.
 
-Sometimes it means writing something completely unnecessary because it sounds fun.
+Sometimes it means building something completely unnecessary because it sounds fun.
 
-Both count.
+Both count. :3
 
 ---
 
-<div align="center"><img src="./assets/lumipyx.png" width="64" alt="LumiPyx">Made with 🐍 Python, 💚 Neovim & a questionable amount of curiosity.
+📜 License
+
+LumiPyx is a personal hobby project.
+
+The source code is publicly available for viewing, but no permission is granted to modify, redistribute, or commercially use the project without permission from the copyright holder.
+
+See ""LICENSE"" (./LICENSE) for the full terms.
+
+---
+
+<div align="center"><img src="./assets/lumipyx.png" width="64" alt="LumiPyx Logo">Made with 🐍 Python, 💚 Neovim & a questionable amount of curiosity.
 
 <br>"learning" · "experimenting" · "building"
 
