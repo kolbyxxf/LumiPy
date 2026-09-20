@@ -1,70 +1,39 @@
-LumiPyx
-
-A Discord bot built with Python and "discord.py", created as a personal learning project.
-
-LumiPyx focuses on moderation, server utilities, persistent configuration, and experimentation with Discord's application-command system.
-
 <p align="center">
+  <strong>LumiPy</strong>
+</p><p align="center">
+  A Discord bot built with Python and <code>discord.py</code>, created as a personal learning project.
+</p><p align="center">
   <img src="https://skillicons.dev/icons?i=python,json,neovim" alt="Python, JSON, and Neovim">
-</p>Features
+</p>About
 
-Category| Features
-Moderation| Kick, ban, timeout, untimeout, purge
-Server Utilities| Avatar lookup, AFK status
-Moderation Logs| Configurable moderation log channel
-Permissions| Discord permission and role hierarchy checks
-Persistence| JSON-based configuration and AFK storage
-Commands| Discord slash commands with "app_commands"
+LumiPy is a personal Discord bot project focused on moderation, server utilities, persistent configuration, and experimentation with Discord's application-command system.
 
-Tech Stack
+The project is primarily built to learn more about Python, asynchronous programming, APIs, Discord bots, and software architecture.
 
-<p align="center">
-  <img src="https://skillicons.dev/icons?i=python,json,neovim" alt="Python, JSON, Neovim">
-</p>- Python for the application logic
-- discord.py for Discord API interaction
-- JSON for lightweight persistent storage
-- Neovim as the development environment
+Features
 
-Project Structure
-
-LumiPyx/
-├── data/
-│   ├── afk.json
-│   └── settings.json
-├── main.py
-├── README.md
-└── LICENSE
-
-Data Storage
-
-LumiPyx currently uses JSON for persistent data.
-
-This keeps the project simple while I learn more about data persistence and database design. SQLite or another database may be introduced later as the project grows.
-
-Discord
-   │
-   ▼
-LumiPyx
-   │
-   ├── Commands
-   ├── Moderation
-   └── Server Configuration
-          │
-          ▼
-        JSON
+- Slash commands
+- Member moderation
+- Permission validation
+- Role hierarchy checks
+- Moderation logging
+- AFK system
+- Avatar lookup
+- Message purging
+- Persistent JSON storage
+- Configurable moderation log channels
 
 Commands
 
-Command| Description
-"/avatar"| Display a user's avatar
-"/afk"| Set an AFK status
-"/kick"| Kick a member
-"/ban"| Ban a member
-"/unban"| Unban a user by ID
-"/timeout"| Timeout a member
-"/untimeout"| Remove a member's timeout
-"/purge"| Delete recent messages
-"/setlog"| Configure the moderation log channel
+- "/avatar" - Display a user's avatar
+- "/afk" - Set an AFK status
+- "/kick" - Kick a member
+- "/ban" - Ban a member
+- "/unban" - Unban a user by ID
+- "/timeout" - Timeout a member
+- "/untimeout" - Remove a member's timeout
+- "/purge" - Delete recent messages
+- "/setlog" - Configure the moderation log channel
 
 Architecture
 
@@ -76,7 +45,7 @@ The project uses reusable helper functions for common operations such as:
 - Moderation logging
 - Discord error handling
 
-This keeps individual commands relatively small and avoids repeating the same logic throughout the bot.
+This keeps individual commands easier to maintain and avoids unnecessary repetition.
 
 Roadmap
 
@@ -97,27 +66,19 @@ Future Experiments
 
 Music playback is one of the features I may experiment with in the future.
 
-A possible architecture:
+Possible components include:
 
-User
- │
- ▼
-Discord Command
- │
- ▼
-Search / Metadata
- │
- ▼
-Audio Source
- │
- ▼
-Discord Voice Channel
+- Search and metadata handling
+- Audio source handling
+- Voice channel integration
+- Queue management
+- Playback controls
 
 This is currently an experimental idea rather than an implemented feature.
 
 Project Status
 
-LumiPyx is primarily a learning project.
+LumiPy is primarily a learning project.
 
 The codebase is being developed incrementally while I learn more about:
 
@@ -134,7 +95,7 @@ Development
 
 The project is developed locally using Neovim.
 
-Features are added incrementally as I learn new concepts and experiment with different approaches.
+Features are added incrementally as new concepts are learned and different approaches are experimented with.
 
 License
 
