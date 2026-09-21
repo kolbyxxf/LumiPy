@@ -1,3 +1,5 @@
+#CURRENTLY WONT HAVE COMMIT YET IM DEVELOPING IT
+
 <p align="center">
   <strong>LumiPy</strong>
 </p><p align="center">
